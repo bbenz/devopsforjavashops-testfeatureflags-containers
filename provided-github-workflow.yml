@@ -1,37 +1,56 @@
-Working GitHub Action: # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy JAR app to Azure Web App - <your web app name here>
+name: Deploy Spring Boot to AKS
 
 env: # Or as an environment variable
       APP_CONFIGURATION_CONNECTION_STRING: ${{ secrets.APP_CONFIGURATION_CONNECTION_STRING }}
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
-
+on: [push]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@master
-
-    - name: Set up Java version
-      uses: actions/setup-java@v1
+    
+    - uses: azure/docker-login@v1
       with:
-        java-version: '11'
-
-    - name: Build with Maven
-      run: mvn clean install
-
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+        login-server: devopsforjavashopstestfeatureflags.azurecr.io
+        username: ${{ secrets.acr_devopsforjavashopstestfeatureflags_username }}
+        password: ${{ secrets.acr_devopsforjavashopstestfeatureflags_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t devopsforjavashopstestfeatureflags.azurecr.io/devopsforjavashopstestfeatureflags:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push devopsforjavashopstestfeatureflags.azurecr.io/devopsforjavashopstestfeatureflags:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
       with:
-        app-name: '<your web app name here>'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_8cbbe98132394af1a139a3f9d4ce8345 }}
-        package: '${{ github.workspace }}/target/*.jar'
-© 2021 GitHub, Inc.
+         kubeconfig: ${{ secrets.aks_devopsforjavashopstestfeatureflags_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep default | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace default`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: default
+        container-registry-url: devopsforjavashopstestfeatureflags.azurecr.io
+        container-registry-username: ${{ secrets.acr_devopsforjavashopstestfeatureflags_username }}
+        container-registry-password: ${{ secrets.acr_devopsforjavashopstestfeatureflags_password }}
+        secret-name: devopsforjavdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: default
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+          manifests/ingress.yml
+        images: |
+          devopsforjavashopstestfeatureflags.azurecr.io/devopsforjavashopstestfeatureflags:${{ github.sha }}
+        imagepullsecrets: |
+          devopsforjavdockerauth
