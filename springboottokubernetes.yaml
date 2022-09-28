@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-to-kubernetes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-boot-to-kubernetes
+  template:
+    metadata:
+      labels:
+        app: spring-boot-to-kubernetes
+    spec:
+      containers:
+      - name: spring-boot-to-kubernetes
+        image: devopsforjavashopstestfeatureflags.azurecr.io/testfeatureflags:v1
+        ports:
+        - containerPort: 80
+        env:
+        - name: TITLE
+          value: "Welcome to Spring Boot on AKS"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-to-kubernetes
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: spring-boot-to-kubernetes
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spring-boot-to-kubernetes
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: spring-boot-to-kubernetes.68cbbe771fe94987ac88.westus3.aksapp.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: spring-boot-to-kubernetes
+            port: 
+              number: 80
+
