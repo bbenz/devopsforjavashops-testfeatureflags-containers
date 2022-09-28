@@ -1,3 +1,8 @@
+name: Deploy Spring Boot to AKS v1
+
+env: # Or as an environment variable
+      APP_CONFIGURATION_CONNECTION_STRING: ${{ secrets.APP_CONFIGURATION_CONNECTION_STRING }}
+      
 on: [push]
 jobs:
   build-and-deploy:
