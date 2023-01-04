@@ -6,7 +6,8 @@ COPY . /home/app/
 ARG CONNECTION_STRING
 
 #for the RUN, if no live feature flag connection string is availiable, use -DskipTests=true
-RUN mvn clean install -DAPP_CONFIGURATION_CONNECTION_STRING=$CONNECTION_STRING
+RUN mvn clean install -D CONNECTION_STRING=$CONNECTION_STRING
+
 
 # Now copy it into our base image
 FROM gcr.io/distroless/java11-debian11

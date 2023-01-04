@@ -40,7 +40,7 @@ metadata:
     kubernetes.io/ingress.class: addon-http-application-routing
 spec:
   rules:
-  - host: spring-boot-to-kubernetes.68cbbe771fe94987ac88.westus3.aksapp.io
+  - host: spring-boot-to-kubernetes.d7ab1548242044898bb3.westus2.aksapp.io
     http:
       paths:
       - path: /
