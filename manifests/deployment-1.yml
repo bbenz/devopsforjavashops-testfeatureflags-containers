@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "devopsforjavashopstestfeatureflags-4afb"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "devopsforjavashopstestfeatureflags-4afb"
+  template:
+    metadata:
+      labels:
+        app: "devopsforjavashopstestfeatureflags-4afb"
+    spec:
+      containers:
+        - name: "devopsforjavashopstestfeatureflags-4afb"
+          image: "devopsforjavashopstestfeatureflags.azurecr.io/devopsforjavashopstestfeatureflags"
+          ports:
+          - containerPort: 80
