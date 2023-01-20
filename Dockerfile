@@ -1,5 +1,6 @@
 # Start by building the application
-FROM maven:3.8.6-openjdk-11 as builder
+# FROM maven:3.8.6-openjdk-11 as builder
+
 USER root
 WORKDIR /home/app/
 COPY . /home/app/
