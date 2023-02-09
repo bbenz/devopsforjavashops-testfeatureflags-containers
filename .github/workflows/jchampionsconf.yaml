@@ -1,7 +1,6 @@
 name: jchampionsconf
 
-env: # Or as an environment variable
-      APP_CONFIGURATION_CONNECTION_STRING: ${{ secrets.APP_CONFIGURATION_CONNECTION_STRING }}
+    
 
 "on":
     push:
@@ -9,6 +8,7 @@ env: # Or as an environment variable
             - main
     workflow_dispatch: {}
 env:
+    APP_CONFIGURATION_CONNECTION_STRING: ${{ secrets.APP_CONFIGURATION_CONNECTION_STRING }}
     ACR_RESOURCE_GROUP: SpringboottoKubernetes
     AZURE_CONTAINER_REGISTRY: jchampionsconf
     CLUSTER_NAME: jchampionsconf
